@@ -8,12 +8,21 @@ public class Player : MonoBehaviour
     [SerializeField] private GameObject m_LaserPrefab;
     [SerializeField] private Vector3 m_SpawnPosition;
     [SerializeField] private float m_FireRate = 0.5f;
+    [SerializeField] private int m_Lives = 3;
     private float canFire = -1;
+    private SpawnManager m_SpawnManager;
 
     private void Start()
     {
+        m_SpawnManager = GameObject.Find("Spawn_Manager").GetComponent<SpawnManager>();
         transform.position = Vector3.zero;
+
+        if(m_SpawnManager == null)
+        {
+            Debug.LogError("Spawn manager is NULL!");
+        }
     }
+
     private void Update()
     {
         CalculateMovement();
@@ -48,5 +57,16 @@ public class Player : MonoBehaviour
     {
             canFire = Time.time + m_FireRate;
             Instantiate(m_LaserPrefab, transform.position + m_SpawnPosition, Quaternion.identity);
+    }
+
+    public void Damage()
+    {
+        m_Lives--;
+
+        if(m_Lives < 1)
+        {
+            m_SpawnManager.OnPlayerDeath();
+            Destroy(gameObject);
+        }
     }
 }
