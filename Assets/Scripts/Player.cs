@@ -6,18 +6,28 @@ public class Player : MonoBehaviour
 {
     [SerializeField] private float m_Speed;
     [SerializeField] private GameObject m_LaserPrefab;
+    [SerializeField] private GameObject m_TripleShotPrefab;
+    [SerializeField] private GameObject m_ShieldVisual;
     [SerializeField] private Vector3 m_SpawnPosition;
     [SerializeField] private float m_FireRate = 0.5f;
     [SerializeField] private int m_Lives = 3;
-    private float canFire = -1;
-    private SpawnManager m_SpawnManager;
+    [SerializeField] private float m_DurationTripleShot = 3f;
+    [SerializeField] private float m_DurationSpeedBoost = 5f;
+    [SerializeField] private float m_DurationShield = 5f;
+
+    private float _canFire = -1;
+    private SpawnManager _spawnManager;
+    private bool _isTripleShotActive = false;
+    private bool _isSpeedBoostActive = false;
+    private bool _isShieldActive = false;
+    private float _speedMultiplier = 2;
 
     private void Start()
     {
-        m_SpawnManager = GameObject.Find("Spawn_Manager").GetComponent<SpawnManager>();
+        _spawnManager = GameObject.Find("Spawn_Manager").GetComponent<SpawnManager>();
         transform.position = Vector3.zero;
 
-        if(m_SpawnManager == null)
+        if(_spawnManager == null)
         {
             Debug.LogError("Spawn manager is NULL!");
         }
@@ -27,7 +37,7 @@ public class Player : MonoBehaviour
     {
         CalculateMovement();
 
-        if (Input.GetMouseButtonDown(0) && Time.time > canFire)
+        if (Input.GetMouseButtonDown(0) && Time.time > _canFire)
         {
             FireLaser();
         }
@@ -39,6 +49,7 @@ public class Player : MonoBehaviour
         float verticalInput = Input.GetAxis("Vertical");
 
         Vector3 direction = new Vector3(horizontalInput, verticalInput, 0);
+
         transform.Translate(direction * m_Speed * Time.deltaTime);
 
         transform.position = new Vector3(transform.position.x, Mathf.Clamp(transform.position.y, -3.8f, 0), 0);
@@ -55,18 +66,65 @@ public class Player : MonoBehaviour
 
     private void FireLaser()
     {
-            canFire = Time.time + m_FireRate;
+        _canFire = Time.time + m_FireRate;
+
+        if (_isTripleShotActive)
+        {
+            Instantiate(m_TripleShotPrefab, transform.position, Quaternion.identity);
+        }
+        else
+        {
             Instantiate(m_LaserPrefab, transform.position + m_SpawnPosition, Quaternion.identity);
+        }
     }
 
     public void Damage()
     {
+        if(_isShieldActive)
+        {
+            _isShieldActive = false;
+            m_ShieldVisual.SetActive(false);
+            return;
+        }
+
         m_Lives--;
 
         if(m_Lives < 1)
         {
-            m_SpawnManager.OnPlayerDeath();
+            _spawnManager.OnPlayerDeath();
             Destroy(gameObject);
         }
+    }
+
+    public void TripleShotActive()
+    {
+        _isTripleShotActive = true;
+        StartCoroutine(TripleShotPowerDownRoutine());
+    }
+
+    private IEnumerator TripleShotPowerDownRoutine()
+    {
+        yield return new WaitForSeconds(m_DurationTripleShot);
+        _isTripleShotActive = false;
+    }
+
+    public void SpeedBoostActive()
+    {
+        _isSpeedBoostActive = true;
+        m_Speed *= _speedMultiplier; 
+        StartCoroutine(SpeedBoostPowerDownRoutine());
+    }
+
+    private IEnumerator SpeedBoostPowerDownRoutine()
+    {
+        yield return new WaitForSeconds(m_DurationSpeedBoost);
+        m_Speed /= _speedMultiplier;
+        _isSpeedBoostActive = false;
+    }
+
+    public void ShieldsActive()
+    {
+        _isShieldActive = true;
+        m_ShieldVisual.SetActive(true);
     }
 }

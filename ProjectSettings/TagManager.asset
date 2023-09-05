@@ -46,6 +46,12 @@ TagManager:
   - name: Background
     uniqueID: 548237135
     locked: 0
+  - name: Mediumground
+    uniqueID: 1732237447
+    locked: 0
   - name: Foreground
     uniqueID: 917972777
+    locked: 0
+  - name: Overplayer
+    uniqueID: 157077121
     locked: 0
