@@ -49,6 +49,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Speed: 3
   m_PowerupID: 2
+  m_Clip: {fileID: 8300000, guid: 5ee343246919d2b4bba63ae629e95494, type: 3}
 --- !u!212 &2399890354735965741
 SpriteRenderer:
   m_ObjectHideFlags: 0

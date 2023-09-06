@@ -4,7 +4,8 @@ public class Powerup : MonoBehaviour
 {
     [SerializeField] private float m_Speed = 3f;
     [SerializeField] private int m_PowerupID;
-    
+    [SerializeField] private AudioClip m_Clip;
+
     private void Update()
     {
         transform.Translate(Vector3.down * m_Speed * Time.deltaTime); 
@@ -17,9 +18,11 @@ public class Powerup : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if(other.CompareTag("Player"))
+        if (other.CompareTag("Player"))
         {
             Player player = other.transform.GetComponent<Player>();
+
+            AudioSource.PlayClipAtPoint(m_Clip, transform.position);
 
             if(player != null)
             {
