@@ -1,10 +1,27 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
     [SerializeField] private float m_Speed = 4f;
+    private Player _player;
+    private Animator _Animator;
+
+    private void Start()
+    {
+        _player = GameObject.Find("Player").GetComponent<Player>();
+        
+        if(_player == null)
+        {
+            Debug.LogError("Player is NULL");
+        }
+
+        _Animator = GetComponent<Animator>();
+
+        if(_Animator == null)
+        {
+            Debug.LogError("Animator is NULL");
+        }
+    }
 
     private void Update()
     {
@@ -28,13 +45,25 @@ public class Enemy : MonoBehaviour
                 player.Damage();
             }
 
-            Destroy(gameObject);
+            _Animator.SetBool("OnEnemyDeath", true);
+            m_Speed = 0;
+
+            Destroy(gameObject, 2.8f);
         }
 
         if(other.CompareTag("Laser"))
         {
             Destroy(other.gameObject);
-            Destroy(gameObject);
+
+            if(_player != null)
+            {
+                _player.AddScore(10);
+            }
+
+            _Animator.SetBool("OnEnemyDeath", true);
+            m_Speed = 0;
+
+            Destroy(gameObject, 2.8f);
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -8,28 +7,39 @@ public class Player : MonoBehaviour
     [SerializeField] private GameObject m_LaserPrefab;
     [SerializeField] private GameObject m_TripleShotPrefab;
     [SerializeField] private GameObject m_ShieldVisual;
+    [SerializeField] private GameObject m_LeftEngine;
+    [SerializeField] private GameObject m_RightEngine;
     [SerializeField] private Vector3 m_SpawnPosition;
     [SerializeField] private float m_FireRate = 0.5f;
     [SerializeField] private int m_Lives = 3;
     [SerializeField] private float m_DurationTripleShot = 3f;
     [SerializeField] private float m_DurationSpeedBoost = 5f;
-    [SerializeField] private float m_DurationShield = 5f;
+
+    private SpawnManager _spawnManager;
+    private UIManager _uiManager;
 
     private float _canFire = -1;
-    private SpawnManager _spawnManager;
     private bool _isTripleShotActive = false;
     private bool _isSpeedBoostActive = false;
     private bool _isShieldActive = false;
     private float _speedMultiplier = 2;
+    private int _score = 0;
 
     private void Start()
     {
         _spawnManager = GameObject.Find("Spawn_Manager").GetComponent<SpawnManager>();
+        _uiManager = GameObject.Find("Canvas").GetComponent<UIManager>();
+
         transform.position = Vector3.zero;
 
         if(_spawnManager == null)
         {
-            Debug.LogError("Spawn manager is NULL!");
+            Debug.LogError("Spawn_Manager is NULL!");
+        }
+
+        if(_uiManager == null)
+        {
+            Debug.LogError("UI_Manager is NULL!");
         }
     }
 
@@ -89,6 +99,17 @@ public class Player : MonoBehaviour
 
         m_Lives--;
 
+        if(m_Lives == 2)
+        {
+            m_LeftEngine.SetActive(true);
+        }
+        else if(m_Lives == 1)
+        {
+            m_RightEngine.SetActive(true);
+        }
+
+        _uiManager.UpdateLives(m_Lives);
+
         if(m_Lives < 1)
         {
             _spawnManager.OnPlayerDeath();
@@ -126,5 +147,11 @@ public class Player : MonoBehaviour
     {
         _isShieldActive = true;
         m_ShieldVisual.SetActive(true);
+    }
+
+    public void AddScore(int point)
+    {
+        _score += point;
+        _uiManager.UpdateScore(_score);
     }
 }
