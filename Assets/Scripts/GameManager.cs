@@ -1,18 +1,10 @@
 ﻿using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    private bool _isGameover;
-
-    void Update()
-    {
-        if(Input.GetKeyDown(KeyCode.R) && _isGameover == true)
-        {
-            SceneManager.LoadScene("Game");
-        }
-    }
-
+    [SerializeField] private GameObject m_Player;
+    public bool _isGameover = false;
+    
     public void GameOver()
     {
         _isGameover = true;

@@ -7,12 +7,14 @@ public class SpawnManager : MonoBehaviour
     [SerializeField] private GameObject m_EnemyContainer;
     [SerializeField] private GameObject[] m_PowerupsPrefab;
     [SerializeField] private float m_EnemySeconds = 5f;
+    private GameManager _gameManager;
 
-    private float _powerupSeconds;
-    private Vector3 _spawnPosition;
-    private bool _stopSpawning = false;
+    private void Start()
+    {
+        _gameManager = GameObject.Find("Game_Manager").GetComponent<GameManager>();
+    }
 
-    public void Startspawning()
+    public void StartSpawningRoutines()
     {
         StartCoroutine(SpawnEnemyRoutine());
         StartCoroutine(SpawnPowerupRoutine());
@@ -22,10 +24,9 @@ public class SpawnManager : MonoBehaviour
     {
         yield return new WaitForSeconds(3f);
 
-        while (_stopSpawning == false)
+        while (_gameManager._isGameover == false)
         {
-            _spawnPosition = new Vector3(Random.Range(-8, 8), 7, 0); 
-            GameObject newEnemy = Instantiate(m_EnemyPrefab, _spawnPosition, Quaternion.identity);
+            GameObject newEnemy = Instantiate(m_EnemyPrefab, new Vector3(Random.Range(-8, 8), 7, 0), Quaternion.identity);
             newEnemy.transform.parent = m_EnemyContainer.transform;
             yield return new WaitForSeconds(m_EnemySeconds);
         }
@@ -35,17 +36,11 @@ public class SpawnManager : MonoBehaviour
     {
         yield return new WaitForSeconds(3f);
 
-        while(_stopSpawning == false)
+        while (_gameManager._isGameover == false)
         {
-            _spawnPosition = new Vector3(Random.Range(-8, 8), 7, 0);
             int randomPowerup = Random.Range(0, 3);
-            Instantiate(m_PowerupsPrefab[randomPowerup], _spawnPosition, Quaternion.identity);
+            Instantiate(m_PowerupsPrefab[randomPowerup], new Vector3(Random.Range(-8, 8), 7, 0), Quaternion.identity);
             yield return new WaitForSeconds(Random.Range(3f, 7f));
         }
-    }
-
-    public void OnPlayerDeath()
-    {
-        _stopSpawning = true;
     }
 }

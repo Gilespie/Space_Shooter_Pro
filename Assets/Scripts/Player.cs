@@ -15,10 +15,11 @@ public class Player : MonoBehaviour
     [SerializeField] private float m_DurationTripleShot = 3f;
     [SerializeField] private float m_DurationSpeedBoost = 5f;
     [SerializeField] private AudioClip m_LaserSFX;
-    [SerializeField] private AudioSource m_AudioSource;
 
+    private AudioSource m_AudioSource;
     private SpawnManager _spawnManager;
     private UIManager _uiManager;
+    private GameManager _gameManager;
 
     private float _canFire = -1;
     private bool _isTripleShotActive = false;
@@ -30,6 +31,7 @@ public class Player : MonoBehaviour
     private void Start()
     {
         _spawnManager = GameObject.Find("Spawn_Manager").GetComponent<SpawnManager>();
+        _gameManager = GameObject.Find("Game_Manager").GetComponent<GameManager>();
         _uiManager = GameObject.Find("Canvas").GetComponent<UIManager>();
         m_AudioSource = GetComponent<AudioSource>();
 
@@ -126,32 +128,31 @@ public class Player : MonoBehaviour
 
         if(m_Lives < 1)
         {
-            _spawnManager.OnPlayerDeath();
+            _gameManager.GameOver();
             Destroy(gameObject);
         }
     }
 
     public void TripleShotActive()
     {
-        _isTripleShotActive = true;
         StartCoroutine(TripleShotPowerDownRoutine());
-    }
-
-    private IEnumerator TripleShotPowerDownRoutine()
-    {
-        yield return new WaitForSeconds(m_DurationTripleShot);
-        _isTripleShotActive = false;
     }
 
     public void SpeedBoostActive()
     {
-        _isSpeedBoostActive = true;
-        m_Speed *= _speedMultiplier; 
         StartCoroutine(SpeedBoostPowerDownRoutine());
     }
 
+    private IEnumerator TripleShotPowerDownRoutine()
+    {
+        _isTripleShotActive = true;
+        yield return new WaitForSeconds(m_DurationTripleShot);
+        _isTripleShotActive = false;
+    }
     private IEnumerator SpeedBoostPowerDownRoutine()
     {
+        _isSpeedBoostActive = true;
+        m_Speed *= _speedMultiplier;
         yield return new WaitForSeconds(m_DurationSpeedBoost);
         m_Speed /= _speedMultiplier;
         _isSpeedBoostActive = false;

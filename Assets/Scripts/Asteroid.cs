@@ -22,7 +22,7 @@ public class Asteroid : MonoBehaviour
         {
             Instantiate(m_ExplosionPrefab, transform.position, Quaternion.identity);
             Destroy(other.gameObject);
-            _spawnManager.Startspawning();
+            _spawnManager.StartSpawningRoutines();
             Destroy(gameObject);
         }
     }

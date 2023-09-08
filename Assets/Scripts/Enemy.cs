@@ -3,9 +3,13 @@
 public class Enemy : MonoBehaviour
 {
     [SerializeField] private float m_Speed = 4f;
+    [SerializeField] private GameObject m_LaserPrefab;
     private Player _player;
     private Animator _Animator;
     private AudioSource _AudioSource;
+    private float _fireRate = 3f;
+    private float _canFire = -1f;
+    private bool _isDead = false;
 
     private void Start()
     {
@@ -33,9 +37,27 @@ public class Enemy : MonoBehaviour
 
     private void Update()
     {
+        CalculateMovement();
+
+        if(Time.time > _canFire && _isDead == false)
+        {
+            _fireRate = Random.Range(3f, 7f);
+            _canFire = Time.time + _fireRate;
+            GameObject enemyLaser = Instantiate(m_LaserPrefab, transform.position, Quaternion.identity);
+            Laser[] lasers = enemyLaser.GetComponentsInChildren<Laser>();
+
+            for(int i =0; i < lasers.Length; i++) 
+            {
+                lasers[i].AssingEnemyLaser();
+            }
+        }
+    }
+
+    private void CalculateMovement()
+    {
         transform.Translate(Vector3.down * m_Speed * Time.deltaTime);
 
-        if(transform.position.y < -5.6f)
+        if (transform.position.y < -5.6f)
         {
             float randomX = Random.Range(-8, 8);
             transform.position = new Vector3(randomX, 7f, 0);
@@ -51,6 +73,7 @@ public class Enemy : MonoBehaviour
             if(player != null)
             {
                 player.Damage();
+                _isDead = true;
             }
 
             _Animator.SetBool("OnEnemyDeath", true);
@@ -67,12 +90,14 @@ public class Enemy : MonoBehaviour
             if(_player != null)
             {
                 _player.AddScore(10);
+                _isDead = true;
             }
 
             _Animator.SetBool("OnEnemyDeath", true);
             m_Speed = 0;
             _AudioSource.Play();
 
+            Destroy(GetComponent<Collider2D>());
             Destroy(gameObject, 2.8f);
         }
     }

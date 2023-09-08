@@ -1,13 +1,16 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
-{
-    public void LoadGame()
+{ 
+    public void SingleGame()
     {
-        SceneManager.LoadScene("Game");
+        SceneManager.LoadScene("Single_game");
+    }
+
+    public void CoopGame()
+    {
+        SceneManager.LoadScene("Coop_game");
     }
 
     public void ExitGame()
