@@ -4,7 +4,6 @@ public class Powerup : MonoBehaviour
 {
     [SerializeField] private float m_Speed = 3f;
     [SerializeField] private int m_PowerupID;
-    [SerializeField] private AudioClip m_Clip;
 
     private void Update()
     {
@@ -22,7 +21,7 @@ public class Powerup : MonoBehaviour
         {
             Player player = other.transform.GetComponent<Player>();
 
-            AudioSource.PlayClipAtPoint(m_Clip, transform.position);
+            AudioManager.Instance.PlaySFX(1);
 
             if(player != null)
             {

@@ -7,19 +7,25 @@ using UnityEngine.SceneManagement;
 public class UIManager : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI m_ScoreText;
+    [SerializeField] private TextMeshProUGUI m_BestScoreText;
     [SerializeField] private TextMeshProUGUI m_GameoverText;
     [SerializeField] private TextMeshProUGUI m_RestartText;
     [SerializeField] private GameObject m_PausePanel;
-    [SerializeField] private GameObject m_SettingPanel;
     [SerializeField] private Sprite[] m_LivesSprites;
     [SerializeField] private Image m_LivesImage;
     private GameManager _gameManager;
+    private int _bestScore = 0;
 
     void Start()
     {
         _gameManager = GameObject.Find("Game_Manager").GetComponent<GameManager>();
 
         m_ScoreText.text = "Score: " + 0;
+
+        LoadData();
+        
+        m_BestScoreText.text = "Best score: " + _bestScore;
+
         m_GameoverText.gameObject.SetActive(false);
         m_RestartText.gameObject.SetActive(false);
 
@@ -31,6 +37,12 @@ public class UIManager : MonoBehaviour
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            m_PausePanel.SetActive(true);
+            Time.timeScale = 0f;
+        }
+
         if (_gameManager._isGameover)
         {
             if (Input.GetKeyDown(KeyCode.R))
@@ -38,21 +50,29 @@ public class UIManager : MonoBehaviour
                 SceneManager.LoadScene("Single_game");
             }
         }
-
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            m_PausePanel.SetActive(true);
-            Time.timeScale = 0f;
-        }
     }
 
     public void UpdateScore(int playerscore)
     {
         m_ScoreText.text = "Score: " + playerscore.ToString();
+
+        if(playerscore > _bestScore)
+        {
+            _bestScore = playerscore;
+            UpdateBestScore();
+        }
+    }
+
+    public void UpdateBestScore()
+    {
+        SaveData();
+        m_BestScoreText.text = "Best score: " + _bestScore.ToString();
     }
 
     public void UpdateLives(int playerlives)
     {
+        if (playerlives < 0) return;
+
         m_LivesImage.sprite = m_LivesSprites[playerlives];
 
         if(playerlives == 0)
@@ -92,15 +112,14 @@ public class UIManager : MonoBehaviour
         Time.timeScale = 1.0f;
     }
 
-    public void OpenSettings()
+    private void SaveData()
     {
-        m_PausePanel.SetActive(false);
-        m_SettingPanel.SetActive(true);
+        PlayerPrefs.SetInt("BestScore", _bestScore);
+        PlayerPrefs.Save();
     }
 
-    public void CloseSettings()
+    private void LoadData()
     {
-        m_SettingPanel.SetActive(false);
-        m_PausePanel.SetActive(true);
+        _bestScore = PlayerPrefs.GetInt("BestScore", _bestScore);
     }
 }

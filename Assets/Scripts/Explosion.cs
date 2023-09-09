@@ -6,6 +6,7 @@ public class Explosion : MonoBehaviour
 
     private void Start()
     {
+        AudioManager.Instance.PlaySFX(2);
         Destroy(gameObject, m_Seconds);
     }
 }
